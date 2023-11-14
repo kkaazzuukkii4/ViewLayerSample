@@ -1,6 +1,12 @@
 package jp.co.recruit.r.kazuki_kinoshita.viewlayersample
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -32,6 +38,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jp.co.recruit.r.kazuki_kinoshita.viewlayersample.ui.theme.ViewLayerSampleTheme
 
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +52,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        // start service
+        Intent(this, ViewControlService::class.java).also { intent ->
+            startService(intent)
+        }
     }
 }
 
@@ -52,6 +63,19 @@ class MainActivity : ComponentActivity() {
 fun Buttons(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val selectedItem = remember { mutableStateOf(layerList[0]) }
+
+    val intent: Intent? = null
+    var binder: IViewControlService? = null
+    val conn: ServiceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, service: IBinder) {
+            Log.i("ServiceLifecycle", "onServiceConnected")
+            binder = IViewControlService.Stub.asInterface(service)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            Log.i("ServiceLifecycle", "onServiceDisconnected")
+        }
+    }
 
     Column(
         modifier = modifier.padding(all = 8.dp)
